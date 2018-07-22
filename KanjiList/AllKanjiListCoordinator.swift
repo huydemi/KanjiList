@@ -28,26 +28,32 @@
 
 import UIKit
 
-class ApplicationCoordinator: Coordinator {
-  let kanjiStorage: KanjiStorage
-  let window: UIWindow
-  let rootViewController: UINavigationController
-  let allKanjiListCoordinator: AllKanjiListCoordinator
+class AllKanjiListCoordinator: Coordinator {
+  private let presenter: UINavigationController
+  private let allKanjiList: [Kanji]
+  private var kanjiListViewController: KanjiListViewController?
+  private let kanjiStorage: KanjiStorage
   
-  init(window: UIWindow) {
-    self.window = window
-    kanjiStorage = KanjiStorage()
-    rootViewController = UINavigationController()
-    rootViewController.navigationBar.prefersLargeTitles = true
-    
-    // Code below is for testing purposes
-    allKanjiListCoordinator = AllKanjiListCoordinator(presenter: rootViewController,
-                                                      kanjiStorage: kanjiStorage)
+  init(presenter: UINavigationController, kanjiStorage: KanjiStorage) {
+    self.presenter = presenter
+    self.kanjiStorage = kanjiStorage
+    allKanjiList = kanjiStorage.allKanji()
   }
   
   func start() {
-    window.rootViewController = rootViewController
-    allKanjiListCoordinator.start()
-    window.makeKeyAndVisible()
+    let kanjiListViewController = KanjiListViewController(nibName: nil, bundle: nil)
+    kanjiListViewController.delegate = self
+    kanjiListViewController.title = "Kanji list"
+    kanjiListViewController.kanjiList = allKanjiList
+    presenter.pushViewController(kanjiListViewController, animated: true)
+    
+    self.kanjiListViewController = kanjiListViewController
+  }
+}
+
+// MARK: - KanjiListViewControllerDelegate
+extension AllKanjiListCoordinator: KanjiListViewControllerDelegate {
+  func kanjiListViewControllerDidSelectKanji(_ selectedKanji: Kanji) {
+    
   }
 }
